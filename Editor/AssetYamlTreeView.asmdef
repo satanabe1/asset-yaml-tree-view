@@ -1,0 +1,29 @@
+{
+    "name": "AssetYamlTreeView",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b3f49edfedc855a48aa1a9e5d3cba438"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.visualscripting",
+            "expression": "1.6.0",
+            "define": "AYTV_VISUALSCRIPTING_1_6_0_OR_NEWER"
+        },
+        {
+            "name": "yamldotnet",
+            "expression": "11.2",
+            "define": "AYTV_YAMLDOTNET_11_2_OR_NEWER"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -208,11 +208,11 @@ namespace AssetYamlTree
                                        | BindingFlags.InvokeMethod
                                        | BindingFlags.GetProperty;
             var assembly = Assembly.GetAssembly(typeof(MonoScript));
-            var _unityType = assembly.GetType("UnityEditor.UnityType");
-            var _findTypeByPersistentTypeID = _unityType.GetMethod("FindTypeByPersistentTypeID", flags);
-            var _nameProperty = _unityType.GetProperty("name", flags);
-            var typeInstance = _findTypeByPersistentTypeID?.Invoke(null, new object[] { id });
-            return typeInstance != null ? _nameProperty?.GetValue(typeInstance) as string : null;
+            var unityType = assembly.GetType("UnityEditor.UnityType");
+            var findTypeByPersistentTypeID = unityType.GetMethod("FindTypeByPersistentTypeID", flags);
+            var nameProperty = unityType.GetProperty("name", flags);
+            var typeInstance = findTypeByPersistentTypeID?.Invoke(null, new object[] { id });
+            return typeInstance != null ? nameProperty?.GetValue(typeInstance) as string : null;
         }
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "asset-yaml-tree-view",
   "displayName": "Asset Yaml Tree View",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "unity": "2020.3",
   "type": "tool",
   "dependencies": []

@@ -35,7 +35,12 @@ namespace AssetYamlTree
 
         public static IEnumerable<(string objectHeader, YamlDocument[] documents)> Parse(string yamlPath)
         {
-            return yamlPath.EndsWith(".meta") ? ParseMetaYaml(yamlPath) : ParseAssetYaml(yamlPath);
+            if (File.Exists(yamlPath))
+            {
+                return yamlPath.EndsWith(".meta") ? ParseMetaYaml(yamlPath) : ParseAssetYaml(yamlPath);
+            }
+
+            return new (string objectHeader, YamlDocument[] documents)[] { (null, new YamlDocument[] { }) };
         }
 
         private static IEnumerable<(string objectHeader, YamlDocument[] documents)> ParseMetaYaml(string yamlPath)

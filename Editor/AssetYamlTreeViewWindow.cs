@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEditor.IMGUI.Controls;
@@ -46,6 +47,7 @@ namespace AssetYamlTree
             {
                 var path = AssetDatabase.GUIDToAssetPath(selected);
                 if (AssetDatabase.IsValidFolder(path)) path += ".meta";
+                if (File.Exists(path) == false) continue;
                 var (elements, nextId) = AssetYamlTreeUtil.BuildElements(id, path);
                 merged = merged.Concat(elements);
                 id = nextId;

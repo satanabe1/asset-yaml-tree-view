@@ -45,6 +45,7 @@ namespace AssetYamlTree
             foreach (var selected in _selecteds)
             {
                 var path = AssetDatabase.GUIDToAssetPath(selected);
+                if (AssetDatabase.IsValidFolder(path)) path += ".meta";
                 var (elements, nextId) = AssetYamlTreeUtil.BuildElements(id, path);
                 merged = merged.Concat(elements);
                 id = nextId;

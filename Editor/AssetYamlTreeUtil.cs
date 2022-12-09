@@ -60,6 +60,46 @@ namespace AssetYamlTree
             }
         }
 
+        /// <summary>
+        /// '--- !u!114 &11400000' で始まる要素のelementを生成する
+        /// </summary>
+        private static AssetYamlTreeElement BuildObjectHeaderElements(string objectHeader, YamlDocument[] documents)
+        {
+            var classId = UnityAssetYamlParser.GetClassIdByObjectHeader(objectHeader);
+            var icon = GetMiniTypeThumbnailFromClassID(classId);
+            var objectHeaderElement = new AssetYamlObjectHeaderElement
+            {
+                Id = _currentId++,
+                Name = objectHeader,
+                // FileId = UnityAssetYamlParser.GetFileIdByObjectHeader(objectHeader),
+                ClassId = classId,
+                ClassName = GetTypeNameByPersistentTypeID(classId),
+                Icon = icon,
+            };
+
+            foreach (var document in documents)
+            {
+                objectHeaderElement.Children.AddRange(YamlNodeToTreeElement(
+                    objectHeaderElement, document.RootNode));
+            }
+
+            // classId:1001(PrefabInstance)の時はm_SourcePrefab.guidからAssetPreview.GetAssetPreviewFromGUID()を実行する
+            if (classId == (int)ClassId.PrefabInstance)
+            {
+                var guid = objectHeaderElement
+                    .Children?.FirstOrDefault(x => x.Name == "PrefabInstance")
+                    ?.Children?.FirstOrDefault(x => x.Name == "m_SourcePrefab")
+                    ?.Children?.FirstOrDefault(x => x.Name == "guid")?.Value;
+                objectHeaderElement.Icon = GetAssetPreviewFromGUID(guid) ?? icon;
+            }
+            else if (classId == (int)ClassId.MonoBehaviour)
+            {
+                objectHeaderElement.Icon = GetIcon(objectHeaderElement, "MonoBehaviour/m_Script");
+            }
+
+            return objectHeaderElement;
+        }
+
         public static (AssetYamlTreeElement[] elements, int nextId) BuildElements(int startElementId, string path)
         {
             _currentId = startElementId;
@@ -73,40 +113,17 @@ namespace AssetYamlTree
             var objectRoots = new List<AssetYamlTreeElement>();
             foreach (var (objectHeader, documents) in UnityAssetYamlParser.Parse(path))
             {
-                var classId = UnityAssetYamlParser.GetClassIdByObjectHeader(objectHeader);
-                var icon = GetMiniTypeThumbnailFromClassID(classId);
-                var objectHeaderElement = new AssetYamlObjectHeaderElement
+                if (objectHeader != null)
                 {
-                    Id = _currentId++,
-                    Name = objectHeader,
-                    // FileId = UnityAssetYamlParser.GetFileIdByObjectHeader(objectHeader),
-                    ClassId = classId,
-                    ClassName = GetTypeNameByPersistentTypeID(classId),
-                    Icon = icon,
-                };
+                    objectRoots.Add(BuildObjectHeaderElements(objectHeader, documents));
+                    continue;
+                }
 
+                // 普通のyaml
                 foreach (var document in documents)
                 {
-                    objectHeaderElement.Children.AddRange(YamlNodeToTreeElement(
-                        objectHeaderElement, document.RootNode));
+                    objectRoots.AddRange(YamlNodeToTreeElement(root, document.RootNode));
                 }
-
-                // classId:1001(PrefabInstance)の時はm_SourcePrefab.guidからAssetPreview.GetAssetPreviewFromGUID()を実行する
-                if (classId == (int)ClassId.PrefabInstance)
-                {
-                    var guid = objectHeaderElement
-                        .Children?.FirstOrDefault(x => x.Name == "PrefabInstance")
-                        ?.Children?.FirstOrDefault(x => x.Name == "m_SourcePrefab")
-                        ?.Children?.FirstOrDefault(x => x.Name == "guid")?.Value;
-                    objectHeaderElement.Icon = GetAssetPreviewFromGUID(guid) ?? icon;
-                }
-                else if (classId == (int)ClassId.MonoBehaviour)
-                {
-                    objectHeaderElement.Icon = GetIcon(objectHeaderElement, "MonoBehaviour/m_Script");
-                }
-
-
-                objectRoots.Add(objectHeaderElement);
             }
 
             root.Children = objectRoots;

@@ -30,10 +30,20 @@ namespace AssetYamlTree
 
         public static IEnumerable<(string objectHeader, YamlDocument[] documents)> Parse(Object asset)
         {
-            return Parse(AssetDatabase.GetAssetPath(asset));
+            return ParseAssetYaml(AssetDatabase.GetAssetPath(asset));
         }
 
         public static IEnumerable<(string objectHeader, YamlDocument[] documents)> Parse(string yamlPath)
+        {
+            return yamlPath.EndsWith(".meta") ? ParseMetaYaml(yamlPath) : ParseAssetYaml(yamlPath);
+        }
+
+        private static IEnumerable<(string objectHeader, YamlDocument[] documents)> ParseMetaYaml(string yamlPath)
+        {
+            yield return (null, ParseText(File.ReadAllText(yamlPath)));
+        }
+
+        private static IEnumerable<(string objectHeader, YamlDocument[] documents)> ParseAssetYaml(string yamlPath)
         {
             var lines = File.ReadLines(yamlPath);
             var sb = new StringBuilder();
@@ -57,14 +67,14 @@ namespace AssetYamlTree
 
             if (header == null) yield break;
             yield return (header, ParseText(sb.ToString()));
+        }
 
-            static YamlDocument[] ParseText(string text)
-            {
-                var stream = new YamlStream();
-                using var sr = new StringReader(text);
-                stream.Load(sr);
-                return stream.Documents.ToArray();
-            }
+        private static YamlDocument[] ParseText(string text)
+        {
+            var stream = new YamlStream();
+            using var sr = new StringReader(text);
+            stream.Load(sr);
+            return stream.Documents.ToArray();
         }
     }
 }
